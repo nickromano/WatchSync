@@ -15,6 +15,7 @@ public enum SendResultFailure {
     case watchConnectivityNotAvailable
     /// The `WatchSyncable` message could not be encoded as JSON
     case unableToSerializeMessageAsJSON(Error)
+    case unableToCompressMessage(Error)
 
     #if os(iOS)
     case watchAppNotPaired

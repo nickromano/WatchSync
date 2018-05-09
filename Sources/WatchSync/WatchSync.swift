@@ -8,6 +8,7 @@
 
 import Foundation
 import WatchConnectivity
+import Gzip
 
 public struct CouldNotActivateError: Error {
 }
@@ -139,15 +140,24 @@ open class WatchSync: NSObject {
     ///   - completion: Closure that provides a `SendResult` describing the status of the message
     public func sendMessage(_ message: SyncableMessage, completion: SendResultCallback?) {
         // Package message for sending
-        let messageJSON: String
+        let messageData: Data
         do {
-            messageJSON = try message.toJSONString()
+            messageData = try message.toJSONData()
         } catch let error {
             completion?(.failure(.unableToSerializeMessageAsJSON(error)))
             return
         }
+
+        let optimizedData: Data
+        do {
+            optimizedData = try messageData.gzipped(level: .bestCompression)
+        } catch let error {
+            completion?(.failure(.unableToCompressMessage(error)))
+            return
+        }
+
         let data: [String: String] = [
-            type(of: message).messageKey: messageJSON
+            type(of: message).messageKey: optimizedData.base64EncodedString()
         ]
         sendMessage(data, completion: completion)
     }
@@ -328,13 +338,27 @@ open class WatchSync: NSObject {
         var foundMessage = false
         // Call all observers based on message types
         for messageType in registeredMessageTypes {
-            guard let messageJSONString = message[messageType.messageKey] as? String else {
+            guard let messageBase64String = message[messageType.messageKey] as? String else {
                 continue
+            }
+            guard let messageData = Data.init(base64Encoded: messageBase64String) else {
+                continue
+            }
+
+            let decompressedData: Data
+            if messageData.isGzipped {
+                do {
+                    decompressedData = try messageData.gunzipped()
+                } catch {
+                    continue
+                }
+            } else {
+                decompressedData = messageData
             }
 
             let watchSyncableMessage: SyncableMessage
             do {
-                watchSyncableMessage = try messageType.fromJSONString(messageJSONString)
+                watchSyncableMessage = try messageType.fromJSONData(decompressedData)
                 foundMessage = true
             } catch let error {
                 logMessage("Unable to parse JSON \(error.localizedDescription)")

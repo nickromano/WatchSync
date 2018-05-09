@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "WatchSync"
-  s.version      = "1.0.0"
+  s.version      = "1.1.0"
   s.summary      = "WatchConnectivity wrapper with typed messages, better error handling, and simplified subscription APIs."
 
   s.description  = <<-DESC
@@ -22,4 +22,5 @@ Pod::Spec.new do |s|
   s.swift_version = "4.1"
 
   s.framework  = "WatchConnectivity"
+  s.dependency 'GzipSwift'
 end

@@ -9,16 +9,23 @@
 import Foundation
 
 extension Encodable {
-    func toJSONString() throws -> String {
+    func toJSONData() throws -> Data {
         let encoder = JSONEncoder()
-        let data = try encoder.encode(self)
-        return String(data: data, encoding: .utf8)!
+        return try encoder.encode(self)
+    }
+
+    func toJSONString() throws -> String {
+        return String(data: try toJSONData(), encoding: .utf8)!
     }
 }
 
 extension Decodable {
-    static func fromJSONString(_ string: String) throws -> Self {
+    static func fromJSONData(_ data: Data) throws -> Self {
         let decoder = JSONDecoder()
-        return try decoder.decode(Self.self, from: string.data(using: .utf8)!)
+        return try decoder.decode(Self.self, from: data)
+    }
+
+    static func fromJSONString(_ string: String) throws -> Self {
+        return try fromJSONData(string.data(using: .utf8)!)
     }
 }

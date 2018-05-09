@@ -32,7 +32,7 @@ class ViewController: UIViewController {
                     break
                 case .watchConnectivityNotAvailable:
                     break
-                case .unableToSerializeMessageAsJSON(let error):
+                case .unableToSerializeMessageAsJSON(let error), .unableToCompressMessage(let error):
                     break
                 case .watchAppNotPaired:
                     break
