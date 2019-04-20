@@ -1,8 +1,8 @@
 PODS:
-  - GzipSwift (4.0.4)
+  - GzipSwift (4.1.0)
   - SwiftLint (0.31.0)
-  - WatchSync (1.2.0):
-    - GzipSwift
+  - WatchSync (1.2.1):
+    - GzipSwift (= 4.1.0)
 
 DEPENDENCIES:
   - GzipSwift
@@ -19,9 +19,9 @@ EXTERNAL SOURCES:
     :path: "."
 
 SPEC CHECKSUMS:
-  GzipSwift: 1a5bc5f7827e09846b0635b5079f1224bc3b1c3a
+  GzipSwift: df1636fa095bd8f21d98db14e7393ecc9e230fed
   SwiftLint: 7a0227733d786395817373b2d0ca799fd0093ff3
-  WatchSync: a284a561c1a0fa6595c03ee734a7445c42c04a77
+  WatchSync: 7f6ed77b43a349ab438888d0861ac766dfd62b82
 
 PODFILE CHECKSUM: b510da179cf0776def41244704914391442fbc73
 
