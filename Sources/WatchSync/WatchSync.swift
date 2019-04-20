@@ -215,10 +215,10 @@ open class WatchSync: NSObject {
         }
 
         logMessage("Reachable, trying to send message")
-        session.sendMessage(message, replyHandler: { _ in
-            self.logMessage("Delivered realtime message successfully")
+        session.sendMessage(message, replyHandler: { [weak self] _ in
+            self?.logMessage("Delivered realtime message successfully")
             completion?(.delivered)
-        }) { error in
+        }, errorHandler: { [weak self] error in
             guard let watchError = error as? WCError else {
                 completion?(.failure(.unhandledError(error)))
                 return
@@ -244,10 +244,10 @@ open class WatchSync: NSObject {
 
             case .deliveryFailed, .transferTimedOut, .messageReplyTimedOut, .messageReplyFailed:
                 // Retry sending in the background
-                self.logMessage("Error sending message: \(error.localizedDescription), transfering user info")
-                self.transferUserInfo(message, in: session, completion: completion)
+                self?.logMessage("Error sending message: \(error.localizedDescription), transfering user info")
+                self?.transferUserInfo(message, in: session, completion: completion)
             }
-        }
+        })
     }
 
     /// Update the application context on the paired device.
