@@ -24,6 +24,7 @@ target 'WatchSync Example' do
   use_frameworks!
 
   pod 'WatchSync', :path => '.'
+  pod 'SwiftLint', '0.31.0'
 end
 
 target 'WatchSync Example WatchKit Extension' do

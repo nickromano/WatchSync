@@ -254,7 +254,6 @@
 				CDE701F6205B6F0000C40127 /* Resources */,
 				CDE7023C205B6F0100C40127 /* Embed Watch Content */,
 				1320456FE6F085DBEFA3671D /* [CP] Embed Pods Frameworks */,
-				F7C6E165DF4AB4415194EA41 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -311,7 +310,6 @@
 				CDE70221205B6F0100C40127 /* Frameworks */,
 				CDE70222205B6F0100C40127 /* Resources */,
 				95A7D06A1FC458A85297ECAB /* [CP] Embed Pods Frameworks */,
-				6B854F4DCEDFB28D05CCF06A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -416,7 +414,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example/Pods-WatchSync Example-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-WatchSync Example/Pods-WatchSync Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GzipSwift-iOS11.2/Gzip.framework",
 				"${BUILT_PRODUCTS_DIR}/WatchSync-iOS/WatchSync.framework",
 			);
@@ -427,22 +425,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example/Pods-WatchSync Example-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6B854F4DCEDFB28D05CCF06A /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example WatchKit Extension/Pods-WatchSync Example WatchKit Extension-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatchSync Example/Pods-WatchSync Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		818F21512FD5A2299C984AC0 /* [CP] Check Pods Manifest.lock */ = {
@@ -469,7 +452,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example WatchKit Extension/Pods-WatchSync Example WatchKit Extension-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-WatchSync Example WatchKit Extension/Pods-WatchSync Example WatchKit Extension-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GzipSwift-watchOS4.2/Gzip.framework",
 				"${BUILT_PRODUCTS_DIR}/WatchSync-watchOS/WatchSync.framework",
 			);
@@ -480,7 +463,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example WatchKit Extension/Pods-WatchSync Example WatchKit Extension-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WatchSync Example WatchKit Extension/Pods-WatchSync Example WatchKit Extension-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EE71338293F06779E93A3127 /* [CP] Check Pods Manifest.lock */ = {
@@ -499,21 +482,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F7C6E165DF4AB4415194EA41 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/../Pods/Target Support Files/Pods-WatchSync Example/Pods-WatchSync Example-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
