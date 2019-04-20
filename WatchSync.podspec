@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "WatchSync"
-  s.version      = "1.2.1"
+  s.version      = "1.2.2"
   s.summary      = "WatchConnectivity wrapper with typed messages, better error handling, and simplified subscription APIs."
 
   s.description  = <<-DESC
