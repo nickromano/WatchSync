@@ -471,6 +471,7 @@ extension WatchSync: WCSessionDelegate {
             } else {
                 completion?(.delivered)
             }
+            userInfoCallbacks[userInfoTransfer] = nil
         }
     }
 
