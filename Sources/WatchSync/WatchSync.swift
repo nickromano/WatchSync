@@ -214,7 +214,7 @@ open class WatchSync: NSObject {
             return
         }
 
-        session.sendMessage(message, replyHandler: { [weak self] _ in
+        session.sendMessage(message, replyHandler: { _ in
             completion?(.delivered)
         }, errorHandler: { [weak self] error in
             guard let watchError = error as? WCError else {
@@ -243,6 +243,8 @@ open class WatchSync: NSObject {
             case .deliveryFailed, .transferTimedOut, .messageReplyTimedOut, .messageReplyFailed:
                 // Retry sending in the background
                 self?.transferUserInfo(message, in: session, completion: completion)
+            @unknown default:
+                fatalError("Unsupported Watch Code \(watchError.code)")
             }
         })
     }
@@ -304,6 +306,8 @@ open class WatchSync: NSObject {
             case .invalidParameter, .payloadTooLarge, .payloadUnsupportedTypes:
                 // Should be handled before sending again.
                 completion?(.failure(.badPayloadError(watchError)))
+            @unknown default:
+                fatalError("Unsupported Watch Code \(watchError.code)")
             }
         }
     }
@@ -447,6 +451,8 @@ extension WatchSync: WCSessionDelegate {
                 case .invalidParameter, .payloadTooLarge, .payloadUnsupportedTypes:
                     // Should be handled before sending again.
                     completion?(.failure(.badPayloadError(watchError)))
+                @unknown default:
+                    fatalError("Unsupported Watch Code \(watchError.code)")
                 }
             } else {
                 completion?(.delivered)

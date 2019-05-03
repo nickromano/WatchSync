@@ -33,15 +33,15 @@ class ViewController: UIViewController {
                 case .watchConnectivityNotAvailable:
                     break
                 case .unableToSerializeMessageAsJSON(let error), .unableToCompressMessage(let error):
-                    break
+                    print(error.localizedDescription)
                 case .watchAppNotPaired:
                     break
                 case .watchAppNotInstalled:
                     break
                 case .unhandledError(let error):
-                    break
+                    print(error.localizedDescription)
                 case .badPayloadError(let error):
-                    break
+                    print(error.localizedDescription)
                 case .failedToDeliver(let error):
                     let alertController = UIAlertController(title: "✅", message: "Failed to Deliver \(error.localizedDescription)", preferredStyle: .alert)
                     alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))

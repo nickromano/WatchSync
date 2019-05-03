@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/nickromano/WatchSync.git", :tag => "#{s.version}" }
 
   s.source_files  = "Sources/**/*.{h,swift}"
-  s.swift_version = "4.2"
+  s.swift_version = "5.0"
 
   s.framework  = "WatchConnectivity"
   s.dependency 'GzipSwift', '>= 4.1.0'
