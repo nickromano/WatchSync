@@ -13,9 +13,15 @@ import Gzip
 public struct CouldNotActivateError: Error {
 }
 
+public protocol ErrorLoggingDelegateWatchSync: AnyObject {
+  func logError(_ error: Error)
+}
+
 /// Singleton to manage phone and watch communication
 open class WatchSync: NSObject {
     public static let shared = WatchSync()
+
+    public var errorLoggingDelegate: ErrorLoggingDelegateWatchSync?
 
     public let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
 
@@ -184,39 +190,31 @@ open class WatchSync: NSObject {
     ///   - completion: Closure that provides a `SendResult` describing the status of the message
     public func sendMessage(_ message: [String: Any], completion: SendResultCallback?) {
         guard let session = session else {
-            logMessage("Watch connectivity not available")
             completion?(.failure(.watchConnectivityNotAvailable))
             return
         }
         guard session.activationState == .activated else {
-            logMessage("Session not activated")
             completion?(.failure(.sessionNotActivated))
             return
         }
 
         #if os(iOS)
             guard session.isPaired else {
-                logMessage("Watch app not paired")
                 completion?(.failure(.watchAppNotPaired))
                 return
             }
             guard session.isWatchAppInstalled else {
-                logMessage("Watch app not installed")
                 completion?(.failure(.watchAppNotInstalled))
                 return
             }
         #endif
 
         guard session.isReachable else {
-            logMessage("Watch app not reachable, transfer user info")
-
             transferUserInfo(message, in: session, completion: completion)
             return
         }
 
-        logMessage("Reachable, trying to send message")
         session.sendMessage(message, replyHandler: { [weak self] _ in
-            self?.logMessage("Delivered realtime message successfully")
             completion?(.delivered)
         }, errorHandler: { [weak self] error in
             guard let watchError = error as? WCError else {
@@ -244,7 +242,6 @@ open class WatchSync: NSObject {
 
             case .deliveryFailed, .transferTimedOut, .messageReplyTimedOut, .messageReplyFailed:
                 // Retry sending in the background
-                self?.logMessage("Error sending message: \(error.localizedDescription), transfering user info")
                 self?.transferUserInfo(message, in: session, completion: completion)
             }
         })
@@ -259,24 +256,20 @@ open class WatchSync: NSObject {
     ///   - completion: Closure that provides a `UpdateContextResult` describing the status of the update
     public func update(applicationContext: [String: Any], completion: UpdateContextCallback?) {
         guard let session = session else {
-            logMessage("Watch connectivity not available")
             completion?(.failure(.watchConnectivityNotAvailable))
             return
         }
         guard session.activationState == .activated else {
-            logMessage("Session not activated")
             completion?(.failure(.sessionNotActivated))
             return
         }
 
         #if os(iOS)
             guard session.isPaired else {
-                logMessage("Watch app not paired")
                 completion?(.failure(.watchAppNotPaired))
                 return
             }
             guard session.isWatchAppInstalled else {
-                logMessage("Watch app not installed")
                 completion?(.failure(.watchAppNotInstalled))
                 return
             }
@@ -317,12 +310,10 @@ open class WatchSync: NSObject {
 
     public func transferFile(file: URL, metadata: [String: Any]?, completion: FileTransferCallback?) {
         guard let session = session else {
-            logMessage("Watch connectivity not available")
             completion?(.failure(.watchConnectivityNotAvailable))
             return
         }
         guard session.activationState == .activated else {
-            logMessage("Session not activated")
             completion?(.failure(.sessionNotActivated))
             return
         }
@@ -361,7 +352,7 @@ open class WatchSync: NSObject {
                 watchSyncableMessage = try messageType.fromJSONData(decompressedData)
                 foundMessage = true
             } catch let error {
-                logMessage("Unable to parse JSON \(error.localizedDescription)")
+                errorLoggingDelegate?.logError(error)
                 continue
             }
 
@@ -386,17 +377,11 @@ open class WatchSync: NSObject {
             }
         }
     }
-
-    /// Override this function to log messages using your own tooling
-    open func logMessage(_ message: String) {
-        print(message)
-    }
 }
 
 extension WatchSync: WCSessionDelegate {
     // MARK: Watch Activation, multiple devices can be paired and swapped with the phone
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        logMessage("Session completed activation: \(activationState)")
         var error = error
         if error == nil && activationState != .activated {
             // We should hopefully never end up in this state, if activationState
@@ -407,21 +392,16 @@ extension WatchSync: WCSessionDelegate {
     }
 
     #if os(iOS)
-    public func sessionDidBecomeInactive(_ session: WCSession) {
-        logMessage("Session became inactive")
-    }
+    public func sessionDidBecomeInactive(_ session: WCSession) {}
 
     // Apple recommends trying to reactivate if the session has switched between devices
     public func sessionDidDeactivate(_ session: WCSession) {
-        logMessage("Session deactivated, trying to setup for new device")
         session.activate()
     }
     #endif
 
     // MARK: Reachability
-    public func sessionReachabilityDidChange(_ session: WCSession) {
-        logMessage("Reachability changed: \(session.isReachable)")
-    }
+    public func sessionReachabilityDidChange(_ session: WCSession) {}
 
     // MARK: Realtime messaging (must be reachable)
     public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
