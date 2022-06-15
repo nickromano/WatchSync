@@ -21,7 +21,7 @@ public protocol ErrorLoggingDelegateWatchSync: AnyObject {
 open class WatchSync: NSObject {
     public static let shared = WatchSync()
 
-    public var errorLoggingDelegate: ErrorLoggingDelegateWatchSync?
+    public weak var errorLoggingDelegate: ErrorLoggingDelegateWatchSync?
 
     public let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
 
@@ -224,7 +224,7 @@ open class WatchSync: NSObject {
 
             switch watchError.code {
             case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated,
-                 .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable:
+                 .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable, .companionAppNotInstalled, .watchOnlyApp:
                 // Shouldn't reach this state since we handle these above
                 completion?(.failure(.unhandledError(watchError)))
 
@@ -244,7 +244,7 @@ open class WatchSync: NSObject {
                 // Retry sending in the background
                 self?.transferUserInfo(message, in: session, completion: completion)
             @unknown default:
-                fatalError("Unsupported Watch Code \(watchError.code)")
+                completion?(.failure(.unhandledError(watchError)))
             }
         })
     }
@@ -286,8 +286,7 @@ open class WatchSync: NSObject {
             }
 
             switch watchError.code {
-            case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated,
-                 .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable:
+            case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated, .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable, .companionAppNotInstalled, .watchOnlyApp:
                 // Shouldn't reach this state since we handle these above
                 completion?(.failure(.unhandledError(watchError)))
 
@@ -307,7 +306,7 @@ open class WatchSync: NSObject {
                 // Should be handled before sending again.
                 completion?(.failure(.badPayloadError(watchError)))
             @unknown default:
-                fatalError("Unsupported Watch Code \(watchError.code)")
+                completion?(.failure(.unhandledError(watchError)))
             }
         }
     }
@@ -435,9 +434,7 @@ extension WatchSync: WCSessionDelegate {
                 }
 
                 switch watchError.code {
-                case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated,
-                     .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable,
-                     .messageReplyTimedOut, .messageReplyFailed, .fileAccessDenied, .insufficientSpace:
+                case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated, .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable, .messageReplyTimedOut, .messageReplyFailed, .fileAccessDenied, .insufficientSpace, .companionAppNotInstalled, .watchOnlyApp:
                     // Not applicable for transfers
                     completion?(.failure(.unhandledError(watchError)))
 
@@ -452,7 +449,7 @@ extension WatchSync: WCSessionDelegate {
                     // Should be handled before sending again.
                     completion?(.failure(.badPayloadError(watchError)))
                 @unknown default:
-                    fatalError("Unsupported Watch Code \(watchError.code)")
+                    completion?(.failure(.unhandledError(watchError)))
                 }
             } else {
                 completion?(.delivered)
