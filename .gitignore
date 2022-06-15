@@ -3,5 +3,8 @@
 *.xcscmblueprint
 **/xcuserdata/*
 .DS_Store
+.build
+.swiftpm
 
 /Pods
+/Package.resolved

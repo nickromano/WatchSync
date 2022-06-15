@@ -9,7 +9,7 @@ import Foundation
 
 public typealias SyncableMessageListener<T: SyncableMessage> = (T) -> Void
 
-protocol SubscriptionCallable: class {
+protocol SubscriptionCallable: AnyObject {
     func callCallback(_ message: SyncableMessage)
 }
 
