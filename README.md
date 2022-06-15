@@ -42,15 +42,15 @@ Listen for changes from the paired device (iOS or watchOS)
 
 ```swift
 class ViewController: UIViewController {
-	var subscriptionToken: SubscriptionToken?
-	
-	override func viewDidLoad() {
-   		super.viewDidLoad()
+    var subscriptionToken: SubscriptionToken?
 
-    	subscriptionToken = WatchSync.shared.subscribeToMessages(ofType: MyMessage.self) { myMessage in
-			print(String(describing: myMessage.myString), String(describing: myMessage.myDate))
-    	}
-	}
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        subscriptionToken = WatchSync.shared.subscribeToMessages(ofType: MyMessage.self) { myMessage in
+            print(String(describing: myMessage.myString), String(describing: myMessage.myDate))
+        }
+    }
 }
 ```
 
@@ -67,15 +67,15 @@ WatchSync.shared.update(applicationContext: ["test": "context"]) { result in
 appDelegateObserver = 
 
 class ViewController: UIViewController {
-	var subscriptionToken: SubscriptionToken?
+    var subscriptionToken: SubscriptionToken?
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-		subscriptionToken = WatchSync.shared.subscribeToApplicationContext { applicationContext in
-			print(applicationContext)
-		}
-   }
+        subscriptionToken = WatchSync.shared.subscribeToApplicationContext { applicationContext in
+            print(applicationContext)
+        }
+    }
 }
 ```
 
