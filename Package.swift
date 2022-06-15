@@ -11,7 +11,7 @@ let package = Package(
         .library(name: "WatchSync", targets: ["WatchSync"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/1024jp/GzipSwift", from: "4.1.0"),
+        .package(url: "https://github.com/1024jp/GzipSwift", from: "5.0.0"),
     ],
     targets: [
         .target(
