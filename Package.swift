@@ -5,7 +5,7 @@ let package = Package(
   name: "WatchSync",
   platforms: [
     .iOS(.v13),
-    .watchOS(.v4),
+    .watchOS(.v6),
   ],
   products: [
     .library(name: "WatchSync", targets: ["WatchSync"]),

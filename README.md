@@ -1,6 +1,6 @@
 # ⌚️WatchSync
 
-WatchConnectivity wrapper with typed messages, better error handling, and simplified subscription APIs.
+WatchConnectivity wrapper with typed messages, better error handling, and simplified subscription APIs. It contains learnings from building [Pinnacle Climb Log](https://pinnacleclimb.com/).
 
 ## Example
 
@@ -12,8 +12,8 @@ Create a new message type that conforms to the `SyncableMessage` protocol. Uses 
 import WatchSync
 
 struct MyMessage: SyncableMessage {
-    var myString: String?
-    var myDate: Date?
+  let myString: String?
+  let myDate: Date?
 }
 ```
 
@@ -33,21 +33,22 @@ WatchSync.shared.sendMessage(["test": "message"]) { result in
 }
 ```
 
+🛫 `WatchSync` will send the message using realtime messaging if the other device is `reachable`, otherwise it will fall back on `transferUserInfo` to ensure it is delivered. If it is sent using realtime messaging you will receive a `delivered` event.
+
+🗒️ The message is compressed to reduce the likelihood of running into a `WCErrorCodePayloadTooLarge` error.
+
 ### Subscribe to new messages
 
 Listen for changes from the paired device (iOS or watchOS)
 
 ```swift
-class ViewController: UIViewController {
-    var subscriptionToken: SubscriptionToken?
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        subscriptionToken = WatchSync.shared.subscribeToMessages(ofType: MyMessage.self) { myMessage in
-            print(String(describing: myMessage.myString), String(describing: myMessage.myDate))
-        }
-    }
+struct MyView: View {
+  var body: some View {
+    Text("Hello")
+      .onReceive(WatchSync.shared.publisher(for: MyMessage.self)) { message in
+        print(message.myString, message.myDate)
+      }
+  }
 }
 ```
 
@@ -61,27 +62,15 @@ WatchSync.shared.update(applicationContext: ["test": "context"]) { result in
 ### Subscribe to application context updates
 
 ```swift
-appDelegateObserver = 
-
-class ViewController: UIViewController {
-    var subscriptionToken: SubscriptionToken?
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        subscriptionToken = WatchSync.shared.subscribeToApplicationContext { applicationContext in
-            print(applicationContext)
-        }
-    }
+struct MyView: View {
+  var body: some View {
+    Text("Hello")
+      .onReceive(WatchSync.shared.applicationContextPublisher) { applicationContext in
+        print(applicationContext)
+      }
+  }
 }
 ```
-
-## How it works
-
-* If the paired device is reachable, `WatchSync` will try to send using an interactive message with `session.sendMessage()`.
-* If the paired device is unreachable, it will fall back to using `sendUserInfo()` instead.
-* All messages conforming to `SyncableMessage` will be JSON serialized to reduce the size of the payload. This is to reduce the likelyhood of running into a `WCErrorCodePayloadTooLarge` error.
-* For interactive messages it uses the `replyHandler` for delivery acknowledgments.
 
 ## Installation & Setup
 

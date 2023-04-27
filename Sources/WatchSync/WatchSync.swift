@@ -6,6 +6,7 @@
 //  Copyright © 2018 Ten Minute Wait. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Gzip
 import WatchConnectivity
@@ -25,6 +26,8 @@ open class WatchSync: NSObject {
   public let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
 
   private var activationCallback: ((Error?) -> Void)?
+
+  private let messagePublisher = PassthroughSubject<any SyncableMessage, Never>()
 
   /// Loop through these when processing an incoming message
   ///
@@ -62,10 +65,53 @@ open class WatchSync: NSObject {
   /// Observe messages of Type (Recommended)
   ///
   /// - Parameters:
+  ///   - for: Message type that conforms to the `WatchSyncable` protocol
+  public func publisher<T: SyncableMessage>(for messageType: T.Type) -> AnyPublisher<T, Never> {
+    if !registeredMessageTypes.contains(where: { watchSyncableType -> Bool in
+      if watchSyncableType == T.self {
+        return true
+      }
+      return false
+    }) {
+      registeredMessageTypes.append(messageType)
+    }
+    return messagePublisher
+      .compactMap { $0 as? T }
+      .eraseToAnyPublisher()
+  }
+
+  private let rawMessageInternalPublisher = PassthroughSubject<[String: Any], Never>()
+
+  /// Observe messages for all data that is not a `WatchSyncable` message
+  public var rawMessagePublisher: AnyPublisher<[String: Any], Never> {
+    rawMessageInternalPublisher
+      .eraseToAnyPublisher()
+  }
+
+  private let applicationContextInternalPublisher = PassthroughSubject<[String: Any], Never>()
+
+  /// Observe application context
+  public var applicationContextPublisher: AnyPublisher<[String: Any], Never> {
+    applicationContextInternalPublisher
+      .eraseToAnyPublisher()
+  }
+
+  private let fileTransferInternalPublisher = PassthroughSubject<WCSessionFile, Never>()
+
+  /// Observe file transfers
+  public var fileTransferPublisher: AnyPublisher<WCSessionFile, Never> {
+    fileTransferInternalPublisher
+      .eraseToAnyPublisher()
+  }
+
+  /// Observe messages of Type
+  ///
+  /// - Parameters:
   ///   - ofType: Message that conforms to `WatchSyncable` protocol
   ///   - queue: Queue to call the callback on.  Defaults to `.main`
   ///   - callback: Closure to be called when receiving a message
   /// - Returns: `SubscriptionToken` store this for as long as you would like to receive messages
+  @available(*, deprecated, message: "Please use `publisher(for:)` instead.")
   public func subscribeToMessages<T: SyncableMessage>(ofType: T.Type, on queue: DispatchQueue = DispatchQueue.main, callback: @escaping SyncableMessageListener<T>) -> SubscriptionToken {
     let subscription = SyncableMessageSunscription<T>(callback: callback, dispatchQueue: queue)
 
@@ -99,12 +145,13 @@ open class WatchSync: NSObject {
     return SubscriptionToken(object: rawSubscription)
   }
 
-  /// Observer application context, also called immediately with the most recently received context
+  /// Observe application context, also called immediately with the most recently received context
   ///
   /// - Parameters:
   ///   - queue: Queue to call the callback on.  Defaults to `.main`
   ///   - callback: Closure to be called when receiving an application context
   /// - Returns: `SubscriptionToken` store this for as long as you would like to application contexts
+  @available(*, deprecated, message: "Please use `applicationContextPublisher` instead.")
   public func subscribeToApplicationContext(on queue: DispatchQueue = DispatchQueue.main, callback: @escaping ApplicationContextListener) -> SubscriptionToken {
     let rawSubscription = ApplicationContextSubscription(callback: callback, dispatchQueue: queue)
 
@@ -119,6 +166,7 @@ open class WatchSync: NSObject {
     return SubscriptionToken(object: rawSubscription)
   }
 
+  @available(*, deprecated, message: "Please use `fileTransferPublisher` instead.")
   public func subscribeToFileTransfers(on queue: DispatchQueue = DispatchQueue.main, callback: @escaping FileTransferListener) -> SubscriptionToken {
     let rawSubscription = FileTransferSubscription(callback: callback, dispatchQueue: queue)
 
@@ -367,6 +415,10 @@ open class WatchSync: NSObject {
         }
         subscription.callCallback(watchSyncableMessage)
       }
+
+      DispatchQueue.main.async {
+        self.messagePublisher.send(watchSyncableMessage)
+      }
     }
     // If there are no message types found, just give the raw payload back
     if !foundMessage {
@@ -377,6 +429,10 @@ open class WatchSync: NSObject {
         }
         subscription.callCallback(message)
       }
+
+      DispatchQueue.main.async {
+        self.rawMessageInternalPublisher.send(message)
+      }
     }
   }
 }
@@ -384,7 +440,7 @@ open class WatchSync: NSObject {
 extension WatchSync: WCSessionDelegate {
   // MARK: Watch Activation, multiple devices can be paired and swapped with the phone
 
-  public func session(_: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+  public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     var error = error
     if error == nil, activationState != .activated {
       // We should hopefully never end up in this state, if activationState
@@ -392,6 +448,10 @@ extension WatchSync: WCSessionDelegate {
       error = CouldNotActivateError()
     }
     activationCallback?(error)
+
+    DispatchQueue.main.async {
+      self.applicationContextInternalPublisher.send(session.applicationContext)
+    }
   }
 
   #if os(iOS)
@@ -470,6 +530,10 @@ extension WatchSync: WCSessionDelegate {
       }
       subscription.callCallback(applicationContext)
     }
+
+    DispatchQueue.main.async {
+      self.applicationContextInternalPublisher.send(applicationContext)
+    }
   }
 
   /// Entrypoint for received file transfers, use `subscribeToFileTransfer` to receive these
@@ -480,6 +544,10 @@ extension WatchSync: WCSessionDelegate {
         return
       }
       subscription.callCallback(file)
+    }
+
+    DispatchQueue.main.async {
+      self.fileTransferInternalPublisher.send(file)
     }
   }
 
