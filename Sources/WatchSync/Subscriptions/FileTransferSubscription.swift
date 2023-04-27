@@ -11,17 +11,17 @@ import WatchConnectivity
 public typealias FileTransferListener = (WCSessionFile) -> Void
 
 class FileTransferSubscription {
-    private var callback: FileTransferListener?
-    private var dispatchQueue: DispatchQueue
+  private var callback: FileTransferListener?
+  private var dispatchQueue: DispatchQueue
 
-    func callCallback(_ message: WCSessionFile) {
-        dispatchQueue.async { [weak self] in
-            self?.callback?(message)
-        }
+  func callCallback(_ message: WCSessionFile) {
+    dispatchQueue.async { [weak self] in
+      self?.callback?(message)
     }
+  }
 
-    init(callback: FileTransferListener?, dispatchQueue: DispatchQueue) {
-        self.callback = callback
-        self.dispatchQueue = dispatchQueue
-    }
+  init(callback: FileTransferListener?, dispatchQueue: DispatchQueue) {
+    self.callback = callback
+    self.dispatchQueue = dispatchQueue
+  }
 }

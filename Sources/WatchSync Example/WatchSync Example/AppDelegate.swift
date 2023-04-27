@@ -11,19 +11,17 @@ import WatchSync
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  var window: UIWindow?
 
-    var window: UIWindow?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-
-        WatchSync.shared.activateSession { error in
-            if let error = error {
-                print("Error activating session \(error.localizedDescription)")
-                return
-            }
-            print("Activated")
-        }
-
-        return true
+  func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    WatchSync.shared.activateSession { error in
+      if let error = error {
+        print("Error activating session \(error.localizedDescription)")
+        return
+      }
+      print("Activated")
     }
+
+    return true
+  }
 }

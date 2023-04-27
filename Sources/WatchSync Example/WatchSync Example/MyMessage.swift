@@ -13,6 +13,6 @@ import WatchSync
  Example message
  */
 struct MyMessage: SyncableMessage {
-    var myString: String?
-    var myDate: Date?
+  var myString: String?
+  var myDate: Date?
 }

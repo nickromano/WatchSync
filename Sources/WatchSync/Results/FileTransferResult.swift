@@ -10,20 +10,20 @@ import Foundation
 public typealias FileTransferCallback = (FileTransferResult) -> Void
 
 public enum FileTransferFailure {
-    /// `WatchSync.shared.activateSession()` must finish before transfering files
-    case sessionNotActivated
-    case watchConnectivityNotAvailable
+  /// `WatchSync.shared.activateSession()` must finish before transfering files
+  case sessionNotActivated
+  case watchConnectivityNotAvailable
 
-    #if os(iOS)
+  #if os(iOS)
     case watchAppNotPaired
     case watchAppNotInstalled
-    #endif
+  #endif
 
-    case failedToSend(Error)
+  case failedToSend(Error)
 }
 
 public enum FileTransferResult {
-    case failure(FileTransferFailure)
-    case sent
-    case delivered
+  case failure(FileTransferFailure)
+  case sent
+  case delivered
 }

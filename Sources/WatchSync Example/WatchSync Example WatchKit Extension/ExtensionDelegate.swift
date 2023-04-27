@@ -10,21 +10,19 @@ import WatchKit
 import WatchSync
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
+  var subscriptionToken: SubscriptionToken?
 
-    var subscriptionToken: SubscriptionToken?
-
-    func applicationDidFinishLaunching() {
-
-        WatchSync.shared.activateSession { error in
-            if let error = error {
-                print("Error activating session \(error.localizedDescription)")
-                return
-            }
-            print("Activated")
-        }
-
-        subscriptionToken = WatchSync.shared.subscribeToMessages(ofType: MyMessage.self) { myMessage in
-            print(myMessage)
-        }
+  func applicationDidFinishLaunching() {
+    WatchSync.shared.activateSession { error in
+      if let error = error {
+        print("Error activating session \(error.localizedDescription)")
+        return
+      }
+      print("Activated")
     }
+
+    subscriptionToken = WatchSync.shared.subscribeToMessages(ofType: MyMessage.self) { myMessage in
+      print(myMessage)
+    }
+  }
 }

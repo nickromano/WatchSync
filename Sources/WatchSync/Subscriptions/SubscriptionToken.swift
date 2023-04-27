@@ -9,8 +9,8 @@ import Foundation
 
 /// Keep a strong reference to this when you want to continue receiving messages
 public class SubscriptionToken {
-    private var object: Any?
-    init(object: Any) {
-        self.object = object
-    }
+  private var object: Any?
+  init(object: Any) {
+    self.object = object
+  }
 }

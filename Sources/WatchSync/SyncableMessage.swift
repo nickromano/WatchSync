@@ -18,11 +18,10 @@ import Foundation
  optional. Otherwise Decodable will throw this error when new fields are
  added: `"No value associated with key"` from old message data.
  */
-public protocol SyncableMessage: Codable {
-}
+public protocol SyncableMessage: Codable {}
 
 extension SyncableMessage {
-    static var messageKey: String {
-        return String(describing: self)
-    }
+  static var messageKey: String {
+    String(describing: self)
+  }
 }

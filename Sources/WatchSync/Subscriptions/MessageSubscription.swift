@@ -10,17 +10,17 @@ import Foundation
 public typealias MessageListener = ([String: Any]) -> Void
 
 class MessageSubscription {
-    private var callback: MessageListener?
-    private var dispatchQueue: DispatchQueue
+  private var callback: MessageListener?
+  private var dispatchQueue: DispatchQueue
 
-    func callCallback(_ message: [String: Any]) {
-        dispatchQueue.async { [weak self] in
-            self?.callback?(message)
-        }
+  func callCallback(_ message: [String: Any]) {
+    dispatchQueue.async { [weak self] in
+      self?.callback?(message)
     }
+  }
 
-    init(callback: MessageListener?, dispatchQueue: DispatchQueue) {
-        self.callback = callback
-        self.dispatchQueue = dispatchQueue
-    }
+  init(callback: MessageListener?, dispatchQueue: DispatchQueue) {
+    self.callback = callback
+    self.dispatchQueue = dispatchQueue
+  }
 }

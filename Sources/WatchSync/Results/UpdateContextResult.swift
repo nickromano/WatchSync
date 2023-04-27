@@ -10,20 +10,20 @@ import Foundation
 public typealias UpdateContextCallback = (UpdateContextResult) -> Void
 
 public enum UpdateContextFailure {
-    /// `WatchSync.shared.activateSession()` must finish before updating application context
-    case sessionNotActivated
-    case watchConnectivityNotAvailable
+  /// `WatchSync.shared.activateSession()` must finish before updating application context
+  case sessionNotActivated
+  case watchConnectivityNotAvailable
 
-    #if os(iOS)
+  #if os(iOS)
     case watchAppNotPaired
     case watchAppNotInstalled
-    #endif
+  #endif
 
-    case unhandledError(Error)
-    case badPayloadError(Error)
+  case unhandledError(Error)
+  case badPayloadError(Error)
 }
 
 public enum UpdateContextResult {
-    case failure(UpdateContextFailure)
-    case success
+  case failure(UpdateContextFailure)
+  case success
 }
