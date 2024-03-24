@@ -96,6 +96,18 @@ open class WatchSync: NSObject {
       .eraseToAnyPublisher()
   }
 
+  #if os(iOS)
+  private let watchAppInstalledPublisher = CurrentValueSubject<Bool, Never>(false)
+
+  public var readyToSendAppContextPublisher: AnyPublisher<Void, Never> {
+    watchAppInstalledPublisher
+      .removeDuplicates()
+      .filter { $0 }
+      .map { _ in () }
+      .eraseToAnyPublisher()
+  }
+  #endif
+
   private let fileTransferInternalPublisher = PassthroughSubject<WCSessionFile, Never>()
 
   /// Observe file transfers
@@ -460,6 +472,12 @@ extension WatchSync: WCSessionDelegate {
     // Apple recommends trying to reactivate if the session has switched between devices
     public func sessionDidDeactivate(_ session: WCSession) {
       session.activate()
+    }
+
+    public func sessionWatchStateDidChange(_ session: WCSession) {
+      DispatchQueue.main.async {
+        self.watchAppInstalledPublisher.send(session.isWatchAppInstalled)
+      }
     }
   #endif
 
