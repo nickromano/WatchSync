@@ -338,6 +338,7 @@ open class WatchSync: NSObject {
 
     do {
       try session.updateApplicationContext(applicationContext)
+      completion?(.success)
     } catch {
       guard let watchError = error as? WCError else {
         completion?(.failure(.unhandledError(error)))
