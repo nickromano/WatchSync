@@ -508,35 +508,37 @@ extension WatchSync: WCSessionDelegate {
   }
 
   public func session(_: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
-    if let completion = userInfoCallbacks[userInfoTransfer] {
-      if let error = error {
-        guard let watchError = error as? WCError else {
-          completion?(.failure(.unhandledError(error)))
-          return
+    DispatchQueue.main.async {
+      if let completion = self.userInfoCallbacks[userInfoTransfer] {
+        if let error = error {
+          guard let watchError = error as? WCError else {
+            completion?(.failure(.unhandledError(error)))
+            return
+          }
+
+          switch watchError.code {
+          case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated, .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable, .messageReplyTimedOut, .messageReplyFailed, .fileAccessDenied, .insufficientSpace, .companionAppNotInstalled, .watchOnlyApp:
+            // Not applicable for transfers
+            completion?(.failure(.unhandledError(watchError)))
+
+          case .deliveryFailed, .transferTimedOut:
+            completion?(.failure(.failedToDeliver(watchError)))
+
+          case .genericError:
+            // Not sure what can throw these
+            completion?(.failure(.unhandledError(watchError)))
+
+          case .invalidParameter, .payloadTooLarge, .payloadUnsupportedTypes:
+            // Should be handled before sending again.
+            completion?(.failure(.badPayloadError(watchError)))
+          @unknown default:
+            completion?(.failure(.unhandledError(watchError)))
+          }
+        } else {
+          completion?(.delivered)
         }
-
-        switch watchError.code {
-        case .sessionNotSupported, .sessionMissingDelegate, .sessionNotActivated, .sessionInactive, .deviceNotPaired, .watchAppNotInstalled, .notReachable, .messageReplyTimedOut, .messageReplyFailed, .fileAccessDenied, .insufficientSpace, .companionAppNotInstalled, .watchOnlyApp:
-          // Not applicable for transfers
-          completion?(.failure(.unhandledError(watchError)))
-
-        case .deliveryFailed, .transferTimedOut:
-          completion?(.failure(.failedToDeliver(watchError)))
-
-        case .genericError:
-          // Not sure what can throw these
-          completion?(.failure(.unhandledError(watchError)))
-
-        case .invalidParameter, .payloadTooLarge, .payloadUnsupportedTypes:
-          // Should be handled before sending again.
-          completion?(.failure(.badPayloadError(watchError)))
-        @unknown default:
-          completion?(.failure(.unhandledError(watchError)))
-        }
-      } else {
-        completion?(.delivered)
+        self.userInfoCallbacks[userInfoTransfer] = nil
       }
-      userInfoCallbacks[userInfoTransfer] = nil
     }
   }
 
